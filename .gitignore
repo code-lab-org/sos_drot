@@ -205,3 +205,26 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# ==================================================
+# SOS_DROT – Project-specific ignores
+# ==================================================
+
+# Downloaded / generated geospatial data
+input_layers/common/mo_basin/
+
+# Future data folders (safe even if unused now)
+input_layers/**/raw/
+input_layers/**/processed/
+
+# Large geospatial formats
+*.nc
+*.tif
+*.dat
+*.gz
+*.tar
+*.zip
+
+# Output layers
+output_efficiency_layers/
+
