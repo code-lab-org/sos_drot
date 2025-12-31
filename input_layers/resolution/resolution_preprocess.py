@@ -51,7 +51,7 @@ path_shp = (
 # Resolution layer directories
 RES_DIR = BASE_DIR / "input_layers" / "resolution"
 raw_path = RES_DIR / "raw"
-snodas_dir = raw_path / "SNODAS"
+snodas_dir = Path(raw_path) / "SNODAS"
 path_preprocessed = RES_DIR / "processed"
 
 file_name_preprocessed = "preprocessed_resolution.nc"
@@ -72,6 +72,7 @@ end = e.replace(tzinfo=timezone.utc)
 
 # define the local directory in which to work
 snodas_dir = os.path.join(raw_path,"SNODAS")
+snodas_dir = Path(snodas_dir)
 # ensure the directory exists
 if not os.path.exists(snodas_dir):
     os.makedirs(snodas_dir)
@@ -167,12 +168,12 @@ mo_basin = gpd.GeoSeries(
 )
 
 # Opening the merged nc file
-snodas_dir = "SNODAS"
+# snodas_dir = "SNODAS"
 ds = xr.open_dataset(snodas_dir / "snodas-merged.nc")
 
 # load the SNODAS SWE data and clip to the spatial domain
 ds = rxr.open_rasterio(snodas_dir / "snodas-merged.nc").sel(
-    time=slice(start, end),   
+    time=slice(start, end)  
 ).rio.write_nodata(-9999, inplace=True)
 ds = ds.where(ds >= 0, 0)
 ds = ds.rio.write_crs("EPSG:4326")
@@ -189,7 +190,7 @@ print("resolution after coarsening", ds_5km.rio.shape, ds_5km.rio.resolution(),d
 print("5km resolution", ds_5km.rio.shape, ds_5km.rio.resolution())
 # Now we do the reprojection to 1km
 # Upsample
-ds_1km = ds_5km.rio.reproject_match(ds,1)
+ds_1km = ds_5km.rio.reproject_match(ds)
 print("1km resolution", ds_1km.rio.shape, ds_1km.rio.resolution())
 # Computing absolute difference
 ds_abs = abs(ds_1km-ds)
@@ -202,7 +203,7 @@ temp = temp.to_dataset()
 temp = temp.rename({'Band1': 'Monthly_Resolution_Abs'})
 #resolution_mo = resolution_mo.assign_coords(month = (resolution_mo.time.dt.month))
 temp_resampled = temp.sel(month=resolution_mo.time.dt.month)
-temp_resampled.to_netcdf(path_preprocessed + file_name_preprocessed)
+temp_resampled.to_netcdf(path_preprocessed / file_name_preprocessed)
 
 # Adding code for SAR
 resolution_mo = ds_abs_SAR.convert_calendar(calendar='standard')
@@ -211,5 +212,4 @@ temp = temp.to_dataset()
 temp = temp.rename({'Band1': 'Monthly_Resolution_Abs'})
 #resolution_mo = resolution_mo.assign_coords(month = (resolution_mo.time.dt.month))
 temp_resampled = temp.sel(month=resolution_mo.time.dt.month)
-temp_resampled.to_netcdf(path_preprocessed + file_name_preprocessed_SAR)
-
+temp_resampled.to_netcdf(path_preprocessed / file_name_preprocessed_SAR)
