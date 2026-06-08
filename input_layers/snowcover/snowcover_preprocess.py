@@ -1,6 +1,5 @@
 """
-Snowcover analysis using MODIS data for SOS_DROT.
-
+Snowcover analysis using MODIS data for SOS_DROT
 Author: Divya Ramachandran
 Affiliation: Arizona State University
 Created: March 2025
@@ -24,6 +23,7 @@ from shapely.geometry import Polygon
 import os
 import requests
 import zipfile
+import re
 
 # ==================================================
 # Paths (repo-relative, GitHub-safe)
@@ -76,7 +76,13 @@ lon = np.linspace(-180,180,7200)
 lat = np.flip(np.linspace(-90,90,3600))
 time_sc = []
 
-for filename in os.listdir(hdf_path):    
+def modis_date_key(fname):
+    m = re.search(r"A(\d{7})", fname)
+    return m.group(1)
+
+# for filename in os.listdir(hdf_path):   
+
+for filename in sorted(os.listdir(hdf_path), key=modis_date_key): 
     year = filename[9:13]
     day = filename[13:16]
     name = filename[0:34]
@@ -96,11 +102,16 @@ for filename in os.listdir(hdf_path):
     )
     )
     temp_arr.to_netcdf(nc_path / (name + ".nc"))
-    files = glob.glob(os.path.join(nc_path,"*.nc"))
-    print(glob.glob(os.path.join(nc_path,"*.nc")))
+    # files = glob.glob(os.path.join(nc_path,"*.nc"))
+    # print(glob.glob(os.path.join(nc_path,"*.nc")))
 
 # Merged code
 print("Writing snowcover-merged.nc")
+files = sorted(glob.glob(os.path.join(nc_path, "*.nc")))
+
+if len(files) != len(time_sc):
+    raise ValueError("Number of .nc files and timestamps do not match.")
+
 ds = xr.combine_by_coords(
     [        
         rxr.open_rasterio(files[i]).drop_vars("band").assign_coords(time=time_sc[i]).expand_dims(dim="time")         
