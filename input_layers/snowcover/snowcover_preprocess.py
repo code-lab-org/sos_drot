@@ -63,7 +63,7 @@ earthaccess.login(persist=True)
 # 2. Search
 results = earthaccess.search_data(
     short_name = 'MOD10C1',
-    temporal = ("2025.01.01","2025.01.3")
+    temporal = ("2018.10.01","2018.10.31")
 )
 # 3. Downloading Data
 files = earthaccess.download(results,hdf_path)
