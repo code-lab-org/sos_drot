@@ -1,5 +1,5 @@
 # sos_drot
-Dynamic Reward-Based Observation Tasking (DROT) Framework for Earth Observation Systems
+# Dynamic Reward-Based Observation Tasking (DROT) Framework for Earth Observation Systems
 Implementation and analysis code accompanying the paper:
 
 
